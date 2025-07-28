@@ -153,10 +153,6 @@ We welcome contributions! Here's how you can help:
 - Test your changes with sample documents
 - Update documentation as needed
 
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## ⚠️ Disclaimer
 
 **Important**: This application is designed for educational and research purposes. Always consult with qualified healthcare professionals for medical decisions. Do not use this tool as a substitute for professional medical advice, diagnosis, or treatment.
