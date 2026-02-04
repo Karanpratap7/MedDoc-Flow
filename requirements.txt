@@ -3,6 +3,7 @@ fpdf
 pypdf
 faiss-cpu
 langchain
+langchain_text_splitters
 euriai
 langchain_community
 sentence_transformers
