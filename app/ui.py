@@ -8,16 +8,16 @@ from typing import List, Optional
 
 
 def pdf_uploader() -> Optional[List]:
-    """Display a file uploader for PDF documents.
-    
+    """Display a file uploader for PDF and plain-text documents.
+
     Returns:
-        Optional[List]: List of uploaded PDF files, or None if no files uploaded.
+        Optional[List]: List of uploaded files, or None if no files uploaded.
     """
     uploaded_files = st.file_uploader(
-        "Choose PDF files",
-        type=["pdf"],
+        "Choose PDF or TXT files",
+        type=["pdf", "txt"],
         accept_multiple_files=True,
-        help="Upload one or more medical PDF documents"
+        help="Upload one or more medical documents (PDF or plain-text)"
     )
-    
+
     return uploaded_files if uploaded_files else None

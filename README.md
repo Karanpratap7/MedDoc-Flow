@@ -6,13 +6,16 @@ MedDoc Flow is a sophisticated Streamlit application that enables healthcare pro
 
 ## ✨ Features
 
-- 📄 **Multi-Document Processing**: Upload and process multiple medical PDF documents simultaneously
+- 📄 **Multi-Document Processing**: Upload and process multiple medical PDF **and plain-text (.txt)** documents simultaneously
 - 🤖 **AI-Powered Chat Interface**: Ask questions about your documents using natural language
 - 🔍 **Semantic Search**: Advanced document retrieval using FAISS vector embeddings
 - 💬 **Interactive UI**: Clean, medical-themed interface with real-time chat experience
 - 🧠 **RAG-Powered Responses**: Uses Retrieval-Augmented Generation to ground AI answers in your uploaded documents
-- ⚡ **Fast Processing**: Efficient text chunking and vector indexing for quick responses
+- ⚡ **Fast Processing**: Efficient text chunking and vector indexing for quick responses; embedding model cached across runs
 - 📱 **Responsive Design**: Works seamlessly across different screen sizes
+- 📊 **Document Statistics**: See file and chunk counts after processing
+- 🗑️ **Clear Chat History**: Reset the conversation at any time from the sidebar
+- 💾 **Export Chat**: Download the full conversation as a `.txt` file
 
 ## 🚀 Quick Start
 
@@ -31,11 +34,17 @@ MedDoc Flow is a sophisticated Streamlit application that enables healthcare pro
 
 2. **Install dependencies**
    ```bash
-   pip install -r requirments.txt
+   pip install -r requirements.txt
    ```
 
 3. **Set up your API key**
-   - Create or update `app/config.py` with your Euri AI API key:
+
+   Preferred – set the environment variable before running the app:
+   ```bash
+   export EURI_API_KEY="your_api_key_here"
+   ```
+
+   Alternatively, update `app/config.py` directly:
    ```python
    EURI_API_KEY = "your_api_key_here"
    ```
@@ -52,23 +61,28 @@ MedDoc Flow is a sophisticated Streamlit application that enables healthcare pro
 ## 📖 Usage
 
 ### 1. Upload Documents
-- Use the sidebar to upload one or more PDF documents
-- Supported formats: PDF files containing medical text
+- Use the sidebar to upload one or more documents
+- Supported formats: **PDF** and **plain-text (.txt)** files
 
 ### 2. Process Documents
-- Click "⚙️ Process Documents" to analyze and index your files
+- Click "⚙️ Process Documents" to analyse and index your files
 - The system will extract text and create searchable embeddings
+- Document statistics (file count, chunk count) are shown after processing
 
 ### 3. Start Chatting
 - Use the chat interface to ask questions about your documents
 - Examples:
   - "What are the main symptoms described in patient 1?"
-  - "Summarize the treatment recommendations"
+  - "Summarise the treatment recommendations"
   - "What medications were prescribed?"
 
 ### 4. Get AI Responses
 - Receive contextual answers based on your uploaded documents
 - The AI will clearly indicate if information is not available in your documents
+
+### 5. Chat Tools
+- **Clear Chat History** – removes all messages from the current session
+- **Export Chat** – downloads the full conversation as a `.txt` file
 
 ## 🏗️ Project Structure
 
@@ -78,12 +92,15 @@ MedDoc-Flow/
 ├── app/
 │   ├── __init__.py        # Package initialization
 │   ├── ui.py              # User interface components
-│   ├── pdf_utils.py       # PDF text extraction utilities
+│   ├── pdf_utils.py       # PDF and plain-text extraction utilities
 │   ├── vectorstore_utils.py # Vector database operations
 │   ├── chat_utils.py      # AI chat model interactions
 │   └── config.py          # Configuration settings
-├── test_patient_records/   # Sample test documents
-├── requirments.txt        # Python dependencies
+├── tests/
+│   ├── test_pdf_utils.py  # Tests for PDF/text extraction
+│   ├── test_chat_utils.py # Tests for chat model utilities
+│   └── test_vectorstore_utils.py # Tests for vector store utilities
+├── requirements.txt       # Python dependencies
 └── README.md              # This file
 ```
 
@@ -96,21 +113,21 @@ Instead of relying solely on the LLM's training data, the application retrieves 
 ### How the RAG Pipeline Works
 
 ```
-PDF Upload
-    │
-    ▼
-Text Extraction (PyPDF)
-    │
-    ▼
+Document Upload (PDF / TXT)
+     │
+     ▼
+Text Extraction (PyPDF / built-in decoder)
+     │
+     ▼
 Text Chunking (RecursiveCharacterTextSplitter, chunk_size=1000, overlap=200)
-    │
-    ▼
-Embedding Generation (HuggingFace sentence-transformers/all-mpnet-base-v2)
-    │
-    ▼
+     │
+     ▼
+Embedding Generation (HuggingFace sentence-transformers/all-mpnet-base-v2) [cached]
+     │
+     ▼
 Vector Indexing (FAISS)
-    │
-    ▼ (at query time)
+     │
+     ▼ (at query time)
 User Question ──► Semantic Similarity Search (top-3 chunks retrieved)
                               │
                               ▼
@@ -127,9 +144,9 @@ User Question ──► Semantic Similarity Search (top-3 chunks retrieved)
 
 | Component | Technology | Role |
 |-----------|-----------|------|
-| **Document Loader** | PyPDF | Extracts raw text from uploaded PDFs |
+| **Document Loader** | PyPDF / built-in | Extracts raw text from uploaded PDFs or `.txt` files |
 | **Text Splitter** | LangChain `RecursiveCharacterTextSplitter` | Splits text into overlapping chunks for retrieval |
-| **Embedding Model** | `sentence-transformers/all-mpnet-base-v2` | Converts text chunks and queries into dense vectors |
+| **Embedding Model** | `sentence-transformers/all-mpnet-base-v2` | Converts text chunks and queries into dense vectors (cached) |
 | **Vector Store** | FAISS (faiss-cpu) | Stores embeddings and performs fast similarity search |
 | **Retriever** | FAISS `similarity_search` (k=3) | Retrieves the 3 most relevant chunks for each query |
 | **LLM** | Euri AI `gpt-4.1-nano` | Generates answers grounded in the retrieved context |
@@ -137,7 +154,14 @@ User Question ──► Semantic Similarity Search (top-3 chunks retrieved)
 ## 🔧 Configuration
 
 ### API Configuration
-The application requires an Euri AI API key. Configure it in `app/config.py`:
+
+The application requires an Euri AI API key. The recommended approach is to set the `EURI_API_KEY` environment variable:
+
+```bash
+export EURI_API_KEY="your_euri_ai_api_key"
+```
+
+Alternatively, update `app/config.py`:
 
 ```python
 EURI_API_KEY = "your_euri_ai_api_key"
@@ -150,7 +174,17 @@ EURI_API_KEY = "your_euri_ai_api_key"
 
 ## 🧪 Testing
 
-The project includes sample medical documents in the `test_patient_records/` directory for testing purposes. These files contain mock patient data for demonstration.
+Run the unit test suite with:
+
+```bash
+pip install pytest
+python -m pytest tests/ -v
+```
+
+Tests cover:
+- PDF and plain-text extraction (`test_pdf_utils.py`)
+- Chat model validation and error handling (`test_chat_utils.py`)
+- Vector store retrieval and backward-compatible alias (`test_vectorstore_utils.py`)
 
 ## 🛠️ Technical Stack
 
@@ -160,7 +194,7 @@ The project includes sample medical documents in the `test_patient_records/` dir
   - FAISS for vector similarity search (retrieval)
   - HuggingFace embeddings (sentence-transformers) for vectorisation
   - Euri AI for LLM chat completions (generation)
-- **Document Processing**: PyPDF for PDF text extraction
+- **Document Processing**: PyPDF for PDF text extraction; built-in decoder for `.txt` files
 - **Backend**: Python 3.8+
 
 ## 📊 Dependencies
@@ -215,11 +249,11 @@ If you encounter any issues:
 ## 🎯 Roadmap
 
 Future enhancements planned:
-- [ ] Support for additional document formats (DOCX, TXT)
+- [ ] Support for DOCX documents
 - [ ] Multi-language support
 - [ ] Advanced document analytics
 - [ ] User authentication and document management
-- [ ] Export conversation history
+- [x] Export conversation history
 - [ ] Integration with more AI models
 
 ## 👨‍💻 Author
