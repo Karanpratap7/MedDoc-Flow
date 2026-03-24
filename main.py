@@ -1,7 +1,7 @@
 import streamlit as st
 from app.ui import pdf_uploader
-from app.pdf_utils import extract_text_from_pdf
-from app.vectorstore_utils import create_faiss_index, retrive_relavent_docs
+from app.pdf_utils import extract_text_from_pdf, extract_text_from_txt
+from app.vectorstore_utils import create_faiss_index, retrieve_relevant_docs
 from app.chat_utils import get_chat_model, ask_chat_model
 from app.config import EURI_API_KEY
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -26,7 +26,7 @@ st.markdown("""
         flex-direction: column;
     }
     .chat-message.user {
-        background-color: #lightblue;
+        background-color: lightblue;
         color: white;
     }
     .chat-message.assistant {
@@ -83,6 +83,8 @@ if 'vectorstore' not in st.session_state:
     st.session_state.vectorstore = None
 if 'chat_model' not in st.session_state:
     st.session_state.chat_model = None
+if 'doc_stats' not in st.session_state:
+    st.session_state.doc_stats = None
 
 
 st.markdown("""
@@ -105,33 +107,86 @@ with st.sidebar:
         # Process documents
         if st.button("⚙️ Process Documents", type="primary"):
             with st.spinner("Processing your medical documents..."):
-                # Extract text from all PDFs
                 all_texts = []
+                errors = []
+
                 for file in uploaded_files:
-                    text = extract_text_from_pdf(file)
-                    all_texts.append(text)
+                    try:
+                        if file.name.lower().endswith(".txt"):
+                            text = extract_text_from_txt(file)
+                        else:
+                            text = extract_text_from_pdf(file)
+                        all_texts.append(text)
+                    except ValueError as exc:
+                        errors.append(f"⚠️ {file.name}: {exc}")
 
-                # Split texts into chunks
-                text_splitter = RecursiveCharacterTextSplitter(
-                    chunk_size=1000,
-                    chunk_overlap=200,
-                    length_function=len
-                )
+                if errors:
+                    for err in errors:
+                        st.warning(err)
 
-                chunks = []
-                for text in all_texts:
-                    chunks.extend(text_splitter.split_text(text))
+                if not all_texts:
+                    st.error("❌ No text could be extracted from the uploaded files.")
+                else:
+                    # Split texts into chunks
+                    text_splitter = RecursiveCharacterTextSplitter(
+                        chunk_size=1000,
+                        chunk_overlap=200,
+                        length_function=len
+                    )
 
-                # Create FAISS index
-                vectorstore = create_faiss_index(chunks)
-                st.session_state.vectorstore = vectorstore
+                    chunks = []
+                    for text in all_texts:
+                        chunks.extend(text_splitter.split_text(text))
 
-                # Initialize chat model
-                chat_model = get_chat_model(EURI_API_KEY)
-                st.session_state.chat_model = chat_model
+                    # Create FAISS index
+                    vectorstore = create_faiss_index(chunks)
+                    st.session_state.vectorstore = vectorstore
 
-                st.success("✅ Documents processed successfully!")
-                st.balloons()
+                    # Initialize chat model
+                    try:
+                        chat_model = get_chat_model(EURI_API_KEY)
+                        st.session_state.chat_model = chat_model
+                    except ValueError as exc:
+                        st.error(f"❌ API key error: {exc}")
+                        st.stop()
+
+                    # Store document statistics
+                    st.session_state.doc_stats = {
+                        "files": len(uploaded_files) - len(errors),
+                        "chunks": len(chunks),
+                    }
+
+                    st.success("✅ Documents processed successfully!")
+                    st.balloons()
+
+    # Document statistics
+    if st.session_state.doc_stats:
+        st.markdown("---")
+        st.markdown("### 📊 Document Statistics")
+        stats = st.session_state.doc_stats
+        col1, col2 = st.columns(2)
+        col1.metric("Files", stats["files"])
+        col2.metric("Chunks", stats["chunks"])
+
+    # Chat management
+    st.markdown("---")
+    st.markdown("### 🛠️ Chat Tools")
+
+    if st.button("🗑️ Clear Chat History"):
+        st.session_state.messages = []
+        st.rerun()
+
+    if st.session_state.messages:
+        chat_export = "\n\n".join(
+            f"[{msg['timestamp']}] {msg['role'].upper()}: {msg['content']}"
+            for msg in st.session_state.messages
+        )
+        st.download_button(
+            label="💾 Export Chat",
+            data=chat_export,
+            file_name="meddoc_chat_history.txt",
+            mime="text/plain",
+        )
 
 # Main chat interface
 st.markdown("### 💬 Chat with Your Medical Documents")
@@ -162,7 +217,7 @@ if prompt := st.chat_input("Ask about your medical documents..."):
         with st.chat_message("assistant"):
             with st.spinner("🔎 Searching documents..."):
                 # Retrieve relevant documents
-                relevant_docs = retrive_relavent_docs(st.session_state.vectorstore, prompt)
+                relevant_docs = retrieve_relevant_docs(st.session_state.vectorstore, prompt)
 
                 # Create context from relevant documents
                 context = "\n\n".join([doc.page_content for doc in relevant_docs])
@@ -179,7 +234,10 @@ if prompt := st.chat_input("Ask about your medical documents..."):
 
                 Answer:"""
 
-                response = ask_chat_model(st.session_state.chat_model, system_prompt)
+                try:
+                    response = ask_chat_model(st.session_state.chat_model, system_prompt)
+                except RuntimeError as exc:
+                    response = f"⚠️ Could not generate a response: {exc}"
 
             st.markdown(response)
             st.caption(timestamp)
