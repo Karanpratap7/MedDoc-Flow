@@ -1,8 +1,8 @@
 # 🩺 MedDoc Flow - Medical Document Assistant
 
-**Your Intelligent Medical Document Assistant powered by AI**
+**Your Intelligent Medical Document Assistant powered by AI and RAG**
 
-MedDoc Flow is a sophisticated Streamlit application that enables healthcare professionals and researchers to interact intelligently with medical documents using advanced AI technology. Upload your medical PDFs and get instant, contextual answers through our conversational interface.
+MedDoc Flow is a sophisticated Streamlit application that enables healthcare professionals and researchers to interact intelligently with medical documents using advanced AI technology and **Retrieval-Augmented Generation (RAG)**. Upload your medical PDFs and get instant, contextual answers through our conversational interface.
 
 ## ✨ Features
 
@@ -10,7 +10,7 @@ MedDoc Flow is a sophisticated Streamlit application that enables healthcare pro
 - 🤖 **AI-Powered Chat Interface**: Ask questions about your documents using natural language
 - 🔍 **Semantic Search**: Advanced document retrieval using FAISS vector embeddings
 - 💬 **Interactive UI**: Clean, medical-themed interface with real-time chat experience
-- 🧠 **Context-Aware Responses**: AI provides answers based on your uploaded documents
+- 🧠 **RAG-Powered Responses**: Uses Retrieval-Augmented Generation to ground AI answers in your uploaded documents
 - ⚡ **Fast Processing**: Efficient text chunking and vector indexing for quick responses
 - 📱 **Responsive Design**: Works seamlessly across different screen sizes
 
@@ -87,6 +87,53 @@ MedDoc-Flow/
 └── README.md              # This file
 ```
 
+## 🧠 RAG Architecture
+
+Yes — **MedDoc Flow is built on RAG (Retrieval-Augmented Generation)**.
+
+Instead of relying solely on the LLM's training data, the application retrieves relevant passages directly from your uploaded documents and provides them as context to the language model, resulting in accurate, document-grounded answers.
+
+### How the RAG Pipeline Works
+
+```
+PDF Upload
+    │
+    ▼
+Text Extraction (PyPDF)
+    │
+    ▼
+Text Chunking (RecursiveCharacterTextSplitter, chunk_size=1000, overlap=200)
+    │
+    ▼
+Embedding Generation (HuggingFace sentence-transformers/all-mpnet-base-v2)
+    │
+    ▼
+Vector Indexing (FAISS)
+    │
+    ▼ (at query time)
+User Question ──► Semantic Similarity Search (top-3 chunks retrieved)
+                              │
+                              ▼
+               Context Injection into LLM Prompt
+                              │
+                              ▼
+               Euri AI LLM (gpt-4.1-nano) Generates Answer
+                              │
+                              ▼
+                   Response Displayed in Chat UI
+```
+
+### RAG Components
+
+| Component | Technology | Role |
+|-----------|-----------|------|
+| **Document Loader** | PyPDF | Extracts raw text from uploaded PDFs |
+| **Text Splitter** | LangChain `RecursiveCharacterTextSplitter` | Splits text into overlapping chunks for retrieval |
+| **Embedding Model** | `sentence-transformers/all-mpnet-base-v2` | Converts text chunks and queries into dense vectors |
+| **Vector Store** | FAISS (faiss-cpu) | Stores embeddings and performs fast similarity search |
+| **Retriever** | FAISS `similarity_search` (k=3) | Retrieves the 3 most relevant chunks for each query |
+| **LLM** | Euri AI `gpt-4.1-nano` | Generates answers grounded in the retrieved context |
+
 ## 🔧 Configuration
 
 ### API Configuration
@@ -108,11 +155,11 @@ The project includes sample medical documents in the `test_patient_records/` dir
 ## 🛠️ Technical Stack
 
 - **Frontend**: Streamlit
-- **AI/ML**: 
-  - LangChain for document processing
-  - FAISS for vector similarity search
-  - HuggingFace embeddings (sentence-transformers)
-  - Euri AI for chat completions
+- **AI/ML**:
+  - **RAG Pipeline**: LangChain orchestrates retrieval and generation
+  - FAISS for vector similarity search (retrieval)
+  - HuggingFace embeddings (sentence-transformers) for vectorisation
+  - Euri AI for LLM chat completions (generation)
 - **Document Processing**: PyPDF for PDF text extraction
 - **Backend**: Python 3.8+
 
