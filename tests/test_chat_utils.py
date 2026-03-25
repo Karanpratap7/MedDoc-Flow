@@ -2,7 +2,7 @@
 
 import sys
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch 
 
 # euriai is not installed in the test environment; mock the entire package so
 # that the import in app/chat_utils succeeds without the real dependency.
