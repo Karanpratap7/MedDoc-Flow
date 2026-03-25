@@ -2,7 +2,7 @@
 
 import sys
 import pytest
-from unittest.mock import MagicMock, patch 
+from unittest.mock import MagicMock, patch
 
 # euriai is not installed in the test environment; mock the entire package so
 # that the import in app/chat_utils succeeds without the real dependency.
@@ -23,6 +23,10 @@ class TestGetChatModel:
     def test_placeholder_api_key_raises(self):
         with pytest.raises(ValueError, match="valid Euri AI API key"):
             get_chat_model("your_euri_api_key_here")
+
+    def test_whitespace_api_key_raises(self):
+        with pytest.raises(ValueError, match="valid Euri AI API key"):
+            get_chat_model("   ")
 
     def test_valid_key_calls_create_chat_model(self):
         mock_model = MagicMock()
