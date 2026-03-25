@@ -19,7 +19,8 @@ def get_chat_model(api_key: str) -> Any:
     Raises:
         ValueError: If the API key is missing or clearly a placeholder.
     """
-    if not api_key or api_key == "your_euri_api_key_here":
+    normalized_key = api_key.strip() if isinstance(api_key, str) else ""
+    if not normalized_key or normalized_key == "your_euri_api_key_here":
         raise ValueError(
             "A valid Euri AI API key is required. "
             "Set the EURI_API_KEY environment variable or update app/config.py."
@@ -27,7 +28,7 @@ def get_chat_model(api_key: str) -> Any:
 
     chat_model = create_chat_model(
         model_name="gpt-4.1-nano",
-        api_key=api_key,
+        api_key=normalized_key,
         temperature=0.7
     )
 
