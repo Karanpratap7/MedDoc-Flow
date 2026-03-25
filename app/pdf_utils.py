@@ -23,12 +23,14 @@ def extract_text_from_pdf(pdf_file: BinaryIO) -> str:
     """
     try:
         pdf_reader = PdfReader(pdf_file)
-        text = ""
+        extracted_pages = []
 
         for page in pdf_reader.pages:
             page_text = page.extract_text()
             if page_text:
-                text += page_text
+                extracted_pages.append(page_text)
+
+        text = "".join(extracted_pages)
 
         if not text.strip():
             raise ValueError("No extractable text found in the PDF.")
