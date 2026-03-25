@@ -260,8 +260,9 @@ Future enhancements planned:
 
 **Karan Pratap**
 - GitHub: [@Karanpratap7](https://github.com/Karanpratap7)
+
 **Paarth Yadav**
-- Github: [@PaarthYadav] (https://github.com/PaarthYadav
+- GitHub: [@PaarthYadav](https://github.com/PaarthYadav)
 
 ## Acknowledgments
 
