@@ -7,6 +7,8 @@ from app.config import EURI_API_KEY
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import time
 
+CHUNK_SIZE = 1000
+CHUNK_OVERLAP = 200
 
 
 st.set_page_config(
@@ -129,8 +131,8 @@ with st.sidebar:
                 else:
                     # Split texts into chunks
                     text_splitter = RecursiveCharacterTextSplitter(
-                        chunk_size=1000,
-                        chunk_overlap=200,
+                        chunk_size=CHUNK_SIZE,
+                        chunk_overlap=CHUNK_OVERLAP,
                         length_function=len
                     )
 
