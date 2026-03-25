@@ -1,10 +1,10 @@
-# 🩺 MedDoc Flow - Medical Document Assistant
+# MedDoc Flow - Medical Document Assistant
 
 **Your Intelligent Medical Document Assistant powered by AI and RAG**
 
 MedDoc Flow is a sophisticated Streamlit application that enables healthcare professionals and researchers to interact intelligently with medical documents using advanced AI technology and **Retrieval-Augmented Generation (RAG)**. Upload your medical PDFs and get instant, contextual answers through our conversational interface.
 
-## ✨ Features
+## Features
 
 - 📄 **Multi-Document Processing**: Upload and process multiple medical PDF **and plain-text (.txt)** documents simultaneously
 - 🤖 **AI-Powered Chat Interface**: Ask questions about your documents using natural language
@@ -17,7 +17,7 @@ MedDoc Flow is a sophisticated Streamlit application that enables healthcare pro
 - 🗑️ **Clear Chat History**: Reset the conversation at any time from the sidebar
 - 💾 **Export Chat**: Download the full conversation as a `.txt` file
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -58,7 +58,7 @@ MedDoc Flow is a sophisticated Streamlit application that enables healthcare pro
    - Navigate to `http://localhost:8501`
    - Start uploading your medical documents!
 
-## 📖 Usage
+## Usage
 
 ### 1. Upload Documents
 - Use the sidebar to upload one or more documents
@@ -84,7 +84,7 @@ MedDoc Flow is a sophisticated Streamlit application that enables healthcare pro
 - **Clear Chat History** – removes all messages from the current session
 - **Export Chat** – downloads the full conversation as a `.txt` file
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 MedDoc-Flow/
@@ -104,7 +104,7 @@ MedDoc-Flow/
 └── README.md              # This file
 ```
 
-## 🧠 RAG Architecture
+## RAG Architecture
 
 Yes — **MedDoc Flow is built on RAG (Retrieval-Augmented Generation)**.
 
@@ -151,7 +151,7 @@ User Question ──► Semantic Similarity Search (top-3 chunks retrieved)
 | **Retriever** | FAISS `similarity_search` (k=3) | Retrieves the 3 most relevant chunks for each query |
 | **LLM** | Euri AI `gpt-4.1-nano` | Generates answers grounded in the retrieved context |
 
-## 🔧 Configuration
+## Configuration
 
 ### API Configuration
 
@@ -172,7 +172,7 @@ EURI_API_KEY = "your_euri_ai_api_key"
 - **Model Settings**: Update embedding models in `vectorstore_utils.py`
 - **UI Theme**: Customize colors and styling in the CSS section of `main.py`
 
-## 🧪 Testing
+## Testing
 
 Run the unit test suite with:
 
@@ -186,7 +186,7 @@ Tests cover:
 - Chat model validation and error handling (`test_chat_utils.py`)
 - Vector store retrieval and backward-compatible alias (`test_vectorstore_utils.py`)
 
-## 🛠️ Technical Stack
+## Technical Stack
 
 - **Frontend**: Streamlit
 - **AI/ML**:
@@ -197,7 +197,7 @@ Tests cover:
 - **Document Processing**: PyPDF for PDF text extraction; built-in decoder for `.txt` files
 - **Backend**: Python 3.8+
 
-## 📊 Dependencies
+## Dependencies
 
 Key dependencies include:
 - `streamlit` - Web application framework
@@ -208,7 +208,7 @@ Key dependencies include:
 - `sentence_transformers` - Text embeddings
 - `euriai` - AI model access
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Here's how you can help:
 
@@ -234,11 +234,11 @@ We welcome contributions! Here's how you can help:
 - Test your changes with sample documents
 - Update documentation as needed
 
-## ⚠️ Disclaimer
+## Disclaimer
 
 **Important**: This application is designed for educational and research purposes. Always consult with qualified healthcare professionals for medical decisions. Do not use this tool as a substitute for professional medical advice, diagnosis, or treatment.
 
-## 🆘 Support
+## Support
 
 If you encounter any issues:
 
@@ -246,7 +246,7 @@ If you encounter any issues:
 2. **Create an Issue**: Report bugs or request features
 3. **Documentation**: Review this README and inline code comments
 
-## 🎯 Roadmap
+## Roadmap
 
 Future enhancements planned:
 - [ ] Support for DOCX documents
@@ -256,12 +256,14 @@ Future enhancements planned:
 - [x] Export conversation history
 - [ ] Integration with more AI models
 
-## 👨‍💻 Author
+## Author
 
 **Karan Pratap**
 - GitHub: [@Karanpratap7](https://github.com/Karanpratap7)
+**Paarth Yadav**
+- Github: [@PaarthYadav] (https://github.com/PaarthYadav
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - LangChain community for excellent documentation
 - Streamlit team for the amazing framework
@@ -271,6 +273,5 @@ Future enhancements planned:
 ---
 
 <div align="center">
-  <p>Made with ❤️ for the healthcare community</p>
   <p>🩺 <strong>MedDoc Flow</strong> - Bridging AI and Medical Documentation</p>
 </div>
