@@ -178,7 +178,7 @@ Run the unit test suite with:
 
 ```bash
 pip install pytest
-python -m pytest tests/ -v
+pytest -v tests/
 ```
 
 Tests cover:
